@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Catatan Pengeluaran Harian</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset dan Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a0ca3;
+            --accent-color: #4cc9f0;
+            --danger-color: #f72585;
+            --success-color: #4ade80;
+            --warning-color: #fca311;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-light: #e9ecef;
+            --gray: #6c757d;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            --shadow-strong: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.5;
+            font-size: 15px;
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Container Responsif */
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 16px;
+            margin: 0 auto;
+        }
+        
+        @media (min-width: 576px) {
+            .container {
+                max-width: 540px;
+                padding: 0 12px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 720px;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .container {
+                max-width: 960px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1140px;
+            }
+        }
+        
+        /* Header Mobile Friendly */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 18px 0;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+        
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        @media (min-width: 768px) {
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0;
+            }
+        }
+        
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .app-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        
+        .total-expense-mobile {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            .total-expense-mobile {
+                text-align: right;
+                min-width: 220px;
+            }
+        }
+        
+        .total-expense-mobile h3 {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        
+        .total-amount {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Main Layout */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (min-width: 768px) {
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 25px;
+            }
+        }
+        
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        /* Form Styles untuk Mobile */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            transition: all 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: white;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.1);
+        }
+        
+        /* Category Selector untuk Touch */
+        .category-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 400px) {
+            .category-options {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        
+        @media (min-width: 576px) {
+            .category-options {
+                display: flex;
+                flex-wrap: wrap;
+            }
+        }
+        
+        .category-option {
+            padding: 12px 8px;
+            background-color: var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 6px;
+            min-height: 70px;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+        
+        .category-option:hover {
+            background-color: #e2e6ff;
+        }
+        
+        .category-option.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+        }
+        
+        .category-option i {
+            font-size: 1.2rem;
+            display: block;
+        }
+        
+        .category-option span {
+            font-size: 0.8rem;
+            display: block;
+        }
+        
+        /* Button Styles untuk Touch */
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover, .btn-primary:active {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover, .btn-danger:active {
+            background-color: #e11575;
+        }
+        
+        /* Expenses List untuk Mobile */
+        .expenses-list {
+            max-height: 400px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-right: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background-color: #f9faff;
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .expense-item:active {
+            background-color: #f0f2ff;
+            transform: scale(0.995);
+        }
+        
+        .expense-category {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0; /* Untuk ellipsis */
+        }
+        
+        .category-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .category-makan { background-color: var(--success-color); }
+        .category-minum { background-color: var(--accent-color); }
+        .category-bensin { background-color: #7209b7; }
+        .category-rokok { background-color: #f8961e; }
+        .category-lainnya { background-color: var(--gray); }
+        
+        .expense-details {
+            flex-grow: 1;
+            min-width: 0; /* Untuk ellipsis */
+        }
+        
+        .expense-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        
+        @media (max-width: 400px) {
+            .expense-title {
+                max-width: 150px;
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .expense-title {
+                max-width: 120px;
+            }
+        }
+        
+        .expense-date {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        
+        .expense-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin-left: 5px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn:active {
+            background-color: rgba(247, 37, 133, 0.1);
+        }
+        
+        /* Statistics untuk Mobile */
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f9faff;
+            padding: 16px;
+            border-radius: var(--border-radius-sm);
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 8px 0;
+            color: var(--primary-dark);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        /* Chart untuk Mobile */
+        .chart-container {
+            margin-top: 20px;
+        }
+        
+        .bar {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 150px;
+            margin-top: 20px;
+            gap: 8px;
+        }
+        
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+        
+        .bar-value {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s;
+            min-height: 5px;
+        }
+        
+        .bar-label {
+            margin-top: 8px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.75rem;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--gray);
+        }
+        
+        /* Total Section */
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--gray-light);
+            margin-top: 15px;
+        }
+        
+        .total-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .total-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-light);
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        
+        /* Swipe Hint untuk Mobile */
+        .swipe-hint {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .swipe-hint i {
+            font-size: 1rem;
+        }
+        
+        /* Modal Konfirmasi untuk Mobile */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .modal-text {
+            margin-bottom: 25px;
+            color: var(--gray);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .modal-actions .btn {
+            flex: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Safe Area untuk Notch Phones */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            header {
+                padding-top: calc(18px + env(safe-area-inset-top));
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .container {
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="app-title">
+                    <div>
+                        <h1><i class="fas fa-wallet"></i> Catatan Pengeluaran</h1>
+                        <p class="app-subtitle">Kelola keuangan harian dengan mudah</p>
+                    </div>
+                </div>
+                <div class="total-expense-mobile">
+                    <h3>Total Bulan Ini</h3>
+                    <div class="total-amount" id="totalMonth">Rp 0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <!-- Form Input Pengeluaran -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-plus-circle" style="color: var(--primary-color);"></i>
+                        <h2>Tambah Pengeluaran Baru</h2>
+                    </div>
+                    
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label for="expenseName">Deskripsi</label>
+                            <input type="text" id="expenseName" placeholder="Contoh: Makan siang" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expenseAmount">Jumlah (Rp)</label>
+                            <input type="number" id="expenseAmount" min="0" placeholder="25000" required inputmode="numeric">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Kategori</label>
+                            <div class="category-options">
+                                <div class="category-option active" data-category="makan">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>Makan</span>
+                                </div>
+                                <div class="category-option" data-category="minum">
+                                    <i class="fas fa-coffee"></i>
+                                    <span>Minum</span>
+                                </div>
+                                <div class="category-option" data-category="bensin">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span>Bensin</span>
+                                </div>
+                                <div class="category-option" data-category="rokok">
+                                    <i class="fas fa-smoking"></i>
+                                    <span>Rokok</span>
+                                </div>
+                                <div class="category-option" data-category="lainnya">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    <span>Lainnya</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="expenseCategory" value="makan" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expenseDate">Tanggal</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Simpan Pengeluaran
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Statistik -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie" style="color: var(--accent-color);"></i>
+                        <h2>Statistik Pengeluaran</h2>
+                    </div>
+                    
+                    <div class="statistics">
+                        <div class="stat-card">
+                            <div class="stat-label">Hari Ini</div>
+                            <div class="stat-value" id="todayExpense">Rp 0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Minggu Ini</div>
+                            <div class="stat-value" id="weekExpense">Rp 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Pengeluaran per Kategori</h3>
+                        <div class="bar" id="categoryChart">
+                            <!-- Chart bars akan di-generate oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Daftar Pengeluaran -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-list" style="color: var(--success-color);"></i>
+                        <h2>Pengeluaran Terbaru</h2>
+                    </div>
+                    
+                    <div class="expenses-list" id="expensesList">
+                        <!-- Daftar pengeluaran akan diisi oleh JavaScript -->
+                        <div class="empty-state" id="emptyState">
+                            <i class="fas fa-receipt"></i>
+                            <h3>Belum ada pengeluaran</h3>
+                            <p>Tambahkan pengeluaran pertama Anda</p>
+                        </div>
+                    </div>
+                    
+                    <div class="total-section">
+                        <div class="total-label">Total Semua</div>
+                        <div class="total-value" id="totalExpense">Rp 0</div>
+                    </div>
+                    
+                    <div class="swipe-hint">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Tekan lama untuk menghapus item</span>
+                    </div>
+                    
+                    <button class="btn btn-danger" id="clearAllBtn" style="margin-top: 15px;">
+                        <i class="fas fa-trash-alt"></i> Hapus Semua Data
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Catatan Pengeluaran | <i class="fas fa-mobile-alt"></i> Optimized for Mobile</p>
+        </footer>
+    </div>
+
+    <!-- Modal Konfirmasi -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Konfirmasi</div>
+            <div class="modal-text" id="modalText">Apakah Anda yakin?</div>
+            <div class="modal-actions">
+                <button class="btn" id="modalCancel">Batal</button>
+                <button class="btn btn-danger" id="modalConfirm">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inisialisasi data
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        const categories = [
+            { id: 'makan', name: 'Makan', icon: 'fa-utensils', color: '#4ade80' },
+            { id: 'minum', name: 'Minum', icon: 'fa-coffee', color: '#4cc9f0' },
+            { id: 'bensin', name: 'Bensin', icon: 'fa-gas-pump', color: '#7209b7' },
+            { id: 'rokok', name: 'Rokok', icon: 'fa-smoking', color: '#f8961e' },
+            { id: 'lainnya', name: 'Lainnya', icon: 'fa-ellipsis-h', color: '#6c757d' }
+        ];
+        
+        // Elemen DOM
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseName = document.getElementById('expenseName');
+        const expenseAmount = document.getElementById('expenseAmount');
+        const expenseCategory = document.getElementById('expenseCategory');
+        const expenseDate = document.getElementById('expenseDate');
+        const expensesList = document.getElementById('expensesList');
+        const emptyState = document.getElementById('emptyState');
+        const totalExpense = document.getElementById('totalExpense');
+        const totalMonth = document.getElementById('totalMonth');
+        const todayExpense = document.getElementById('todayExpense');
+        const weekExpense = document.getElementById('weekExpense');
+        const categoryChart = document.getElementById('categoryChart');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const categoryOptions = document.querySelectorAll('.category-option');
+        const submitBtn = document.getElementById('submitBtn');
+        const confirmModal = document.getElementById('confirmModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+        
+        // State untuk modal
+        let modalAction = null;
+        let modalData = null;
+        
+        // Set tanggal default ke hari ini
+        const today = new Date().toISOString().split('T')[0];
+        expenseDate.value = today;
+        
+        // Fokus ke input nama saat load
+        window.addEventListener('DOMContentLoaded', () => {
+            expenseName.focus();
+            
+            // Coba mencegah zoom pada input focus (untuk iOS)
+            document.addEventListener('touchstart', function(event) {
+                if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' || event.target.tagName === 'TEXTAREA') {
+                    event.target.style.fontSize = '16px'; // Mencegah zoom di iOS
+                }
+            });
+        });
+        
+        // Fungsi untuk memformat angka ke format Rupiah
+        function formatRupiah(amount) {
+            return 'Rp ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+        
+        // Fungsi untuk menyimpan data ke localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+        
+        // Fungsi untuk menghitung total pengeluaran
+        function calculateTotalExpense() {
+            let total = 0;
+            expenses.forEach(expense => {
+                total += parseInt(expense.amount);
+            });
+            return total;
+        }
+        
+        // Fungsi untuk menghitung total pengeluaran bulan ini
+        function calculateMonthExpense() {
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            let total = 0;
+            expenses.forEach(expense => {
+                const expenseDate = new Date(expense.date);
+                if (expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear) {
+                    total += parseInt(expense.amount);
+                }
+            });
+            return total;
+        }
+        
+        // Fungsi untuk menghitung total pengeluaran hari ini
+        function calculateTodayExpense() {
+            const currentDate = new Date().toDateString();
+            
+            let total = 0;
+            expenses.forEach(expense => {
+                const expenseDate = new Date(expense.date).toDateString();
+                if (expenseDate === currentDate) {
+                    total += parseInt(expense.amount);
+                }
+            });
+            return total;
+        }
+        
+        // Fungsi untuk menghitung total pengeluaran minggu ini
+        function calculateWeekExpense() {
+            const currentDate = new Date();
+            const firstDayOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+            const lastDayOfWeek = new Date(firstDayOfWeek);
+            lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
+            
+            let total = 0;
+            expenses.forEach(expense => {
+                const expenseDate = new Date(expense.date);
+                if (expenseDate >= firstDayOfWeek && expenseDate <= lastDayOfWeek) {
+                    total += parseInt(expense.amount);
+                }
+            });
+            return total;
+        }
+        
+        // Fungsi untuk menampilkan chart kategori
+        function renderCategoryChart() {
+            categoryChart.innerHTML = '';
+            
+            // Hitung total per kategori
+            const categoryTotals = {};
+            categories.forEach(cat => {
+                categoryTotals[cat.id] = 0;
+            });
+            
+            expenses.forEach(expense => {
+                if (categoryTotals[expense.category] !== undefined) {
+                    categoryTotals[expense.category] += parseInt(expense.amount);
+                }
+            });
+            
+            // Cari nilai maksimum untuk scaling
+            const values = Object.values(categoryTotals);
+            const maxValue = Math.max(...values);
+            
+            // Buat bar untuk setiap kategori
+            categories.forEach(cat => {
+                const barItem = document.createElement('div');
+                barItem.className = 'bar-item';
+                
+                const barValue = document.createElement('div');
+                barValue.className = 'bar-value';
+                barValue.style.backgroundColor = cat.color;
+                
+                // Jika ada nilai, set tinggi bar, jika tidak set tinggi minimal
+                const height = maxValue > 0 ? (categoryTotals[cat.id] / maxValue) * 100 : 5;
+                barValue.style.height = `${height}%`;
+                barValue.title = formatRupiah(categoryTotals[cat.id]);
+                
+                const barLabel = document.createElement('div');
+                barLabel.className = 'bar-label';
+                barLabel.textContent = cat.name;
+                
+                barItem.appendChild(barValue);
+                barItem.appendChild(barLabel);
+                categoryChart.appendChild(barItem);
+            });
+        }
+        
+        // Fungsi untuk menampilkan daftar pengeluaran
+        function renderExpenses() {
+            // Kosongkan daftar
+            expensesList.innerHTML = '';
+            
+            // Jika tidak ada pengeluaran, tampilkan empty state
+            if (expenses.length === 0) {
+                emptyState.style.display = 'block';
+                expensesList.appendChild(emptyState);
+                totalExpense.textContent = 'Rp 0';
+                totalMonth.textContent = 'Rp 0';
+                todayExpense.textContent = 'Rp 0';
+                weekExpense.textContent = 'Rp 0';
+                renderCategoryChart();
+                return;
+            }
+            
+            // Sembunyikan empty state
+            emptyState.style.display = 'none';
+            
+            // Urutkan berdasarkan tanggal (terbaru dulu)
+            const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Tampilkan maksimal 10 pengeluaran terbaru
+            const recentExpenses = sortedExpenses.slice(0, 10);
+            
+            // Buat elemen untuk setiap pengeluaran
+            recentExpenses.forEach((expense, index) => {
+                const expenseItem = document.createElement('div');
+                expenseItem.className = 'expense-item';
+                expenseItem.setAttribute('data-id', expense.id);
+                
+                // Cari kategori yang sesuai
+                const category = categories.find(cat => cat.id === expense.category);
+                
+                // Format tanggal
+                const date = new Date(expense.date);
+                const formattedDate = date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                expenseItem.innerHTML = `
+                    <div class="expense-category">
+                        <div class="category-icon ${'category-' + expense.category}">
+                            <i class="fas ${category.icon}"></i>
+                        </div>
+                        <div class="expense-details">
+                            <div class="expense-title">${expense.name}</div>
+                            <div class="expense-date">${formattedDate}</div>
+                        </div>
+                    </div>
+                    <div class="expense-amount">${formatRupiah(expense.amount)}</div>
+                    <button class="delete-btn" data-id="${expense.id}" aria-label="Hapus">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                expensesList.appendChild(expenseItem);
+                
+                // Tambahkan event listeners untuk touch dan hold (long press)
+                setupTouchEvents(expenseItem, expense.id);
+            });
+            
+            // Update total
+            const total = calculateTotalExpense();
+            totalExpense.textContent = formatRupiah(total);
+            
+            // Update statistik
+            const monthTotal = calculateMonthExpense();
+            const todayTotal = calculateTodayExpense();
+            const weekTotal = calculateWeekExpense();
+            
+            totalMonth.textContent = formatRupiah(monthTotal);
+            todayExpense.textContent = formatRupiah(todayTotal);
+            weekExpense.textContent = formatRupiah(weekTotal);
+            
+            // Render chart
+            renderCategoryChart();
+            
+            // Tambahkan event listener untuk tombol hapus
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = parseInt(this.getAttribute('data-id'));
+                    showDeleteConfirm(id);
+                });
+            });
+        }
+        
+        // Setup touch events untuk mobile
+        function setupTouchEvents(element, expenseId) {
+            let touchTimer;
+            let longPressTriggered = false;
+            
+            element.addEventListener('touchstart', function(e) {
+                longPressTriggered = false;
+                touchTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    showDeleteConfirm(expenseId);
+                }, 800); // 800ms untuk long press
+            }, { passive: true });
+            
+            element.addEventListener('touchend', function(e) {
+                clearTimeout(touchTimer);
+            }, { passive: true });
+            
+            element.addEventListener('touchmove', function(e) {
+                clearTimeout(touchTimer);
+            }, { passive: true });
+            
+            // Untuk mouse (desktop)
+            element.addEventListener('mousedown', function(e) {
+                if (e.button === 0) { // Left click only
+                    touchTimer = setTimeout(() => {
+                        showDeleteConfirm(expenseId);
+                    }, 800);
+                }
+            });
+            
+            element.addEventListener('mouseup', function(e) {
+                clearTimeout(touchTimer);
+            });
+            
+            element.addEventListener('mouseleave', function(e) {
+                clearTimeout(touchTimer);
+            });
+        }
+        
+        // Tampilkan modal konfirmasi
+        function showModal(title, text, confirmCallback, confirmData = null) {
+            modalTitle.textContent = title;
+            modalText.textContent = text;
+            modalAction = confirmCallback;
+            modalData = confirmData;
+            confirmModal.style.display = 'flex';
+        }
+        
+        // Sembunyikan modal
+        function hideModal() {
+            confirmModal.style.display = 'none';
+            modalAction = null;
+            modalData = null;
+        }
+        
+        // Tampilkan konfirmasi hapus
+        function showDeleteConfirm(expenseId) {
+            const expense = expenses.find(exp => exp.id === expenseId);
+            if (!expense) return;
+            
+            showModal(
+                'Hapus Pengeluaran',
+                `Apakah Anda yakin ingin menghapus "${expense.name}" senilai ${formatRupiah(expense.amount)}?`,
+                deleteExpense,
+                expenseId
+            );
+        }
+        
+        // Tampilkan konfirmasi hapus semua
+        function showClearAllConfirm() {
+            if (expenses.length === 0) {
+                alert('Tidak ada data yang bisa dihapus.');
+                return;
+            }
+            
+            showModal(
+                'Hapus Semua Data',
+                `Apakah Anda yakin ingin menghapus semua data pengeluaran (${expenses.length} item)? Tindakan ini tidak dapat dibatalkan.`,
+                clearAllData
+            );
+        }
+        
+        // Fungsi untuk menambahkan pengeluaran baru
+        function addExpense(name, amount, category, date) {
+            // Tampilkan loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading"></div>';
+            submitBtn.disabled = true;
+            
+            // Simulasikan proses async (untuk UX)
+            setTimeout(() => {
+                const newExpense = {
+                    id: Date.now(),
+                    name: name.trim(),
+                    amount: parseInt(amount),
+                    category: category,
+                    date: date
+                };
+                
+                expenses.push(newExpense);
+                saveToLocalStorage();
+                renderExpenses();
+                
+                // Reset form
+                expenseName.value = '';
+                expenseAmount.value = '';
+                expenseName.focus();
+                
+                // Reset button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Tampilkan feedback visual
+                const submitBtnOriginal = submitBtn.style.backgroundColor;
+                submitBtn.style.backgroundColor = '#4ade80';
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Tersimpan!';
+                
+                setTimeout(() => {
+                    submitBtn.style.backgroundColor = submitBtnOriginal;
+                    submitBtn.innerHTML = originalText;
+                }, 1500);
+                
+                // Scroll ke daftar pengeluaran di mobile
+                if (window.innerWidth < 768) {
+                    document.querySelector('.expenses-list').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+            }, 300);
+        }
+        
+        // Fungsi untuk menghapus pengeluaran
+        function deleteExpense(expenseId) {
+            const index = expenses.findIndex(exp => exp.id === expenseId);
+            if (index !== -1) {
+                expenses.splice(index, 1);
+                saveToLocalStorage();
+                renderExpenses();
+            }
+            hideModal();
+        }
+        
+        // Fungsi untuk menghapus semua data
+        function clearAllData() {
+            expenses = [];
+            saveToLocalStorage();
+            renderExpenses();
+            hideModal();
+        }
+        
+        // Event listener untuk form
+        expenseForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = expenseName.value.trim();
+            const amount = expenseAmount.value;
+            const category = expenseCategory.value;
+            const date = expenseDate.value;
+            
+            if (!name) {
+                alert('Harap isi deskripsi pengeluaran.');
+                expenseName.focus();
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                alert('Harap isi jumlah pengeluaran dengan benar.');
+                expenseAmount.focus();
+                return;
+            }
+            
+            addExpense(name, amount, category, date);
+        });
+        
+        // Event listener untuk kategori (touch friendly)
+        categoryOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Hapus kelas active dari semua opsi
+                categoryOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    opt.style.transform = 'translateY(0)';
+                });
+                
+                // Tambahkan kelas active ke opsi yang diklik
+                this.classList.add('active');
+                this.style.transform = 'translateY(-2px)';
+                
+                // Update nilai input kategori
+                const category = this.getAttribute('data-category');
+                expenseCategory.value = category;
+                
+                // Feedback haptic (jika didukung)
+                if (navigator.vibrate) {
+                    navigator.vibrate(10);
+                }
+            });
+            
+            // Efek saat ditekan
+            option.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            }, { passive: true });
+            
+            option.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            }, { passive: true });
+        });
+        
+        // Event listener untuk tombol hapus semua
+        clearAllBtn.addEventListener('click', showClearAllConfirm);
+        
+        // Event listener untuk modal
+        modalCancel.addEventListener('click', hideModal);
+        modalConfirm.addEventListener('click', function() {
+            if (modalAction && typeof modalAction === 'function') {
+                modalAction(modalData);
+            }
+        });
+        
+        // Tutup modal saat klik di luar
+        confirmModal.addEventListener('click', function(e) {
+            if (e.target === confirmModal) {
+                hideModal();
+            }
+        });
+        
+        // Keyboard shortcuts untuk mobile (jika keyboard external)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.activeElement !== expenseAmount) {
+                expenseAmount.focus();
+            }
+        });
+        
+        // Optimasi untuk keyboard di mobile
+        expenseAmount.addEventListener('focus', function() {
+            if (window.innerWidth < 768) {
+                // Scroll ke input yang sedang difokuskan
+                setTimeout(() => {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        });
+        
+        // Inisialisasi tampilan
+        renderExpenses();
+        
+        // Tambahkan beberapa data contoh jika kosong
+        if (expenses.length === 0) {
+            // Data contoh untuk demonstrasi
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            const twoDaysAgo = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
+            
+            const sampleExpenses = [
+                { id: 1, name: "Makan siang", amount: 25000, category: "makan", date: today },
+                { id: 2, name: "Kopi di warung", amount: 15000, category: "minum", date: today },
+                { id: 3, name: "Bensin motor", amount: 30000, category: "bensin", date: yesterday },
+                { id: 4, name: "Rokok Surya", amount: 20000, category: "rokok", date: yesterday },
+                { id: 5, name: "Parkir mall", amount: 10000, category: "lainnya", date: twoDaysAgo },
+            ];
+            
+            // Tambahkan data contoh ke localStorage
+            localStorage.setItem('expenses', JSON.stringify(sampleExpenses));
+            expenses = sampleExpenses;
+            renderExpenses();
+        }
+        
+        // Deteksi perubahan orientasi layar
+        window.addEventListener('orientationchange', function() {
+            // Render ulang chart saat orientasi berubah
+            setTimeout(renderCategoryChart, 100);
+        });
+        
+        // Deteksi resize untuk optimasi
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                renderCategoryChart();
+            }, 250);
+        });
+    </script>
+</body>
+</html>
